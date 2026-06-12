@@ -24,14 +24,14 @@ export default function AuthView({ onSuccess, onAddToast }: AuthViewProps) {
   const [regPhone, setRegPhone] = useState('');
   const [regPass, setRegPass] = useState('');
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail || !loginPass) {
       onAddToast('کادرهای ایمیل و کلمه عبور را پر نمایید.', 'error');
       return;
     }
 
-    const result = loginUser(loginEmail, loginPass);
+    const result = await loginUser(loginEmail, loginPass);
     if (result.success) {
       onAddToast('✓ با موفقیت وارد شدید! به محفل دخانیات خوش آمدید.', 'success');
       onSuccess();
@@ -40,19 +40,19 @@ export default function AuthView({ onSuccess, onAddToast }: AuthViewProps) {
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regName || !regEmail || !regPhone || !regPass) {
       onAddToast('پر کردن کلیه فیلدها اجباری است.', 'error');
       return;
     }
 
-    if (regPass.length < 4) {
-      onAddToast('رمز عبور باید حداقل ۴ نویسه داشته باشد.', 'error');
+    if (regPass.length < 6) {
+      onAddToast('رمز عبور باید حداقل ۶ نویسه داشته باشد.', 'error');
       return;
     }
 
-    const result = registerUser(regName, regEmail, regPhone, regPass);
+    const result = await registerUser(regName, regEmail, regPhone, regPass);
 
     if (result.success) {
       onAddToast('✓ حساب کاربری VIP شما با موفقیت ثبت شد!', 'success');
@@ -114,7 +114,7 @@ export default function AuthView({ onSuccess, onAddToast }: AuthViewProps) {
                 />
                 <Lock className="w-4 h-4 text-[#C8860A]/30 absolute right-3.5 top-3.5" />
               </div>
-              <span className="text-[9px] text-[#B8A07A]/50 block pr-1">رمز پیش‌فرض برای هر دو اکانت: admin</span>
+              <span className="text-[9px] text-[#B8A07A]/50 block pr-1">رمز پیش‌فرض مدیر: admin123 | رمز پیش‌فرض مشتری: amir123</span>
             </div>
 
             <button

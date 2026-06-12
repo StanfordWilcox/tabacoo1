@@ -100,35 +100,39 @@ export default function CheckoutView({ onBackToCart, onOrderSuccess, onAddToast,
     setStep(2);
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const activeAddress = addresses.find((a) => a.id === selectedAddressId);
     if (!activeAddress) {
       onAddToast('آدرس فرستنده یا گیرنده معتبر نیست.', 'error');
       return;
     }
 
-    // Place the order via Context CRUD
-    const placed = createOrder({
-      totalAmount: totals.total,
-      shippingCost: totals.shippingCost,
-      discountAmount: totals.discount,
-      couponCode: couponCode || undefined,
-      shippingAddress: {
-        fullName: activeAddress.fullName,
-        phone: activeAddress.phone,
-        province: activeAddress.province,
-        city: activeAddress.city,
-        address: activeAddress.address,
-        postalCode: activeAddress.postalCode,
-      },
-      paymentMethod,
-      notes: orderNotes || undefined,
-    });
+    try {
+      // Place the order via Context CRUD
+      const placed = await createOrder({
+        totalAmount: totals.total,
+        shippingCost: totals.shippingCost,
+        discountAmount: totals.discount,
+        couponCode: couponCode || undefined,
+        shippingAddress: {
+          fullName: activeAddress.fullName,
+          phone: activeAddress.phone,
+          province: activeAddress.province,
+          city: activeAddress.city,
+          address: activeAddress.address,
+          postalCode: activeAddress.postalCode,
+        },
+        paymentMethod,
+        notes: orderNotes || undefined,
+      });
 
-    setCreatedOrderId(placed.id);
-    setStep(3);
-    onOrderSuccess(placed.id);
-    onAddToast(`✓ سفارش ${placed.id} با موفقیت ثبت شد و فاکتور مالی تأیید گردید!`, 'success');
+      setCreatedOrderId(placed.id);
+      setStep(3);
+      onOrderSuccess(placed.id);
+      onAddToast(`✓ سفارش ${placed.id} با موفقیت ثبت شد و فاکتور مالی تأیید گردید!`, 'success');
+    } catch (err: any) {
+      onAddToast(err.message || 'ثبت سفارش با تکاپو مواجه شد. لطفاً مجدداً امتحان کنید.', 'error');
+    }
   };
 
   return (

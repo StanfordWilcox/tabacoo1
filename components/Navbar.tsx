@@ -101,16 +101,6 @@ export default function Navbar({ currentScreen, setScreen, setShopFilters }: Nav
 
           {/* Action Buttons */}
           <div className="flex items-center gap-3">
-            {/* Quick Switch to Admin Panel */}
-            <button
-              onClick={() => setScreen('admin')}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 border border-[#C8860A]/30 hover:border-[#C8860A] bg-[#2D1500]/40 walk-through text-xs font-semibold text-[#E8A820] tracking-wide sharp-border transition-all hover:bg-[#C8860A]/10"
-              title="ورود به پنل مدیریت دخانیات"
-            >
-              <Shield className="w-3.5 h-3.5 text-[#C8860A]" />
-              پنل مدیریت
-            </button>
-
             {/* User Account / Login */}
             <div className="relative">
               {currentUser ? (
@@ -137,15 +127,6 @@ export default function Navbar({ currentScreen, setScreen, setShopFilters }: Nav
                       </button>
                       <button
                         onClick={() => {
-                          setScreen('admin');
-                          setUserDropdownOpen(false);
-                        }}
-                        className="w-full text-right px-3 py-2 hover:bg-[#C8860A]/10 text-[#E8A820] md:hidden block transition-colors border-t border-[#C8860A]/10"
-                      >
-                        پنل مدیریت اداری
-                      </button>
-                      <button
-                        onClick={() => {
                           logout();
                           setUserDropdownOpen(false);
                           setScreen('home');
@@ -159,7 +140,7 @@ export default function Navbar({ currentScreen, setScreen, setShopFilters }: Nav
                 </div>
               ) : (
                 <button
-                  onClick={() => setScreen('login')}
+                  onClick={() => setScreen('auth')}
                   className="flex items-center gap-1.5 text-xs font-semibold hover:text-[#C8860A] text-[#F5E6C8] transition-colors px-1"
                 >
                   <User className="w-4 h-4 text-[#C8860A]" />
@@ -227,16 +208,6 @@ export default function Navbar({ currentScreen, setScreen, setShopFilters }: Nav
               className="text-right py-2 px-3 hover:bg-[#C8860A]/10 transition-all sharp-border text-[#B8A07A]"
             >
               ─ شلنگ و لوازم لوکس قلیان
-            </button>
-            <button
-              onClick={() => {
-                setScreen('admin');
-                setMobileMenuOpen(false);
-              }}
-              className="text-right py-2 px-3 hover:bg-[#C8860A]/10 text-[#E8A820] border-t border-[#C8860A]/10 flex items-center gap-2"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              ورود به پنل مدیریت
             </button>
           </div>
         )}

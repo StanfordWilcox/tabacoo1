@@ -141,10 +141,10 @@ interface ShopContextType {
   currentUser: User | null;
 
   // Actions
-  loginUser: (email: string, password: string) => { success: boolean; error?: string };
-  registerUser: (name: string, email: string, phone: string, password: string) => { success: boolean; error?: string };
-  logout: () => void;
-  setCurrentUserRole: (role: 'admin' | 'customer') => void;
+  loginUser: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  registerUser: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  setCurrentUserRole: (role: 'admin' | 'customer') => Promise<void>;
 
   // Cart Actions
   addToCart: (productId: string, quantity?: number) => void;
@@ -154,13 +154,13 @@ interface ShopContextType {
   getCartTotal: () => { subtotal: number; shippingCost: number; discount: number; total: number };
 
   // Order Actions
-  createOrder: (orderData: Omit<Order, 'id' | 'userId' | 'createdAt' | 'status' | 'paymentStatus' | 'items'>) => Order;
-  updateOrderStatus: (orderId: string, status: Order['status'], trackingCode?: string) => void;
+  createOrder: (orderData: Omit<Order, 'id' | 'userId' | 'createdAt' | 'status' | 'paymentStatus' | 'items'>) => Promise<Order>;
+  updateOrderStatus: (orderId: string, status: Order['status'], trackingCode?: string) => Promise<void>;
 
   // Product Actions
-  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
 
   // Category Actions
   addCategory: (category: Omit<Category, 'id'>) => void;
@@ -189,219 +189,17 @@ interface ShopContextType {
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
-// Seeds
+// Local Seed backups in case network fails
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 'cat-1', name: 'تنباکو میوه‌ای', slug: 'tobacco', description: 'انواع تنباکوهای میوه‌ای و لوکس و سنتی', image: 'https://picsum.photos/seed/tobacco/400/300', isActive: true },
   { id: 'cat-2', name: 'زغال طبیعی قلیان', slug: 'charcoal', description: 'زغال برتر مرکبات و لیمو و زغال‌های نارگیل فشرده', image: 'https://picsum.photos/seed/charcoal/400/300', isActive: true },
   { id: 'cat-3', name: 'لوازم جانبی و اکسسوری', slug: 'accessories', description: 'طيف وسیعی از شلنگ، سری‌های سفالی و انبرهای منقش سنتی', image: 'https://picsum.photos/seed/hose/400/300', isActive: true },
 ];
 
-const DEFAULT_PRODUCTS: Product[] = [
-  {
-    id: 'prod-1',
-    name: 'تنباکو دوسیب شلاقی غلیظ سری طلایی',
-    slug: 'double-apple-gold',
-    description: 'تنباکو سنتی دوسیب با عطر بی‌نظیر و غلیظ که تجربه اصیل قهوه‌خانه‌ای را برای شما تداعی می‌کند. این تنباکو با پخت کند چوب درخت تهیه شده و ماندگاری و کام‌دهی فوق‌العاده بالایی دارد.',
-    price: 85000,
-    comparePrice: 110000,
-    stock: 120,
-    images: ['https://picsum.photos/seed/apple1/600/600', 'https://picsum.photos/seed/apple2/600/600'],
-    categoryId: 'cat-1',
-    brand: 'دخانیات پارسی',
-    weight: '۵۰ گرم',
-    tags: ['تنباکو', 'دوسیب', 'سنگین', 'ویژه'],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2026-05-01T10:00:00Z',
-  },
-  {
-    id: 'prod-2',
-    name: 'تنباکو پرتقال خامه ملو شاهانه',
-    slug: 'orange-cream-king',
-    description: 'یک ترکیب خنک، ملایم و فوق‌العاده خوش‌طعم از پرتقال ارگانیک و خامه غلیظ سوئیسی. مناسب برای کسانی که طعم‌های سرد و خامه‌ای را می‌پسندند.',
-    price: 75000,
-    stock: 85,
-    images: ['https://picsum.photos/seed/orange1/600/600'],
-    categoryId: 'cat-1',
-    brand: 'النخلة',
-    weight: '۵۰ گرم',
-    tags: ['پرتقال خامه', 'ملایم', 'خنک'],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2026-05-02T11:00:00Z',
-  },
-  {
-    id: 'prod-3',
-    name: 'تنباکو بلوبری بلک لایت یخ',
-    slug: 'blueberry-ice',
-    description: 'نعنای وحشی به همراه عصاره بلوبری‌های استوایی و بلورهای یخ طبیعی. غلیظ‌ترین کام ممکن را با این طعم شگفت‌انگیز و مدرن تجربه کنید.',
-    price: 90000,
-    comparePrice: 120000,
-    stock: 0, // Out of stock to demonstrate product availability
-    images: ['https://picsum.photos/seed/blueberry1/600/600'],
-    categoryId: 'cat-1',
-    brand: 'الخوانکی',
-    weight: '۵۰ گرم',
-    tags: ['بلوبری', 'یخ', 'مدرن'],
-    isActive: true,
-    isFeatured: false,
-    createdAt: '2026-05-03T09:00:00Z',
-  },
-  {
-    id: 'prod-4',
-    name: 'تنباکو نعناع کوهی خنک طبیعی',
-    slug: 'wild-mint',
-    description: 'نعنای کاملا خالص دشت‌های کردستان، مناسب برای میکس یا استفاده به صورت تکی. طراوت بخش و خنک‌کننده گلو.',
-    price: 80000,
-    stock: 200,
-    images: ['https://picsum.photos/seed/mint1/600/600'],
-    categoryId: 'cat-1',
-    brand: 'دخانیات پارسی',
-    weight: '۵۰ گرم',
-    tags: ['نعناع', 'خنک', 'میکس'],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2026-05-04T12:00:00Z',
-  },
-  {
-    id: 'prod-5',
-    name: 'زغال لیمو قلمی جهرم ویژه مجلسی',
-    slug: 'premium-lemon-charcoal',
-    description: 'برترین زغال لیموی جنوب کشور، بدون سردرد، بدون دود و خاکستر اضافی با روشن ماندن بیش از ۲ ساعت مستمر. دست‌گزین شده بدون خرده و شکستگی.',
-    price: 120000,
-    comparePrice: 160000,
-    stock: 50,
-    images: ['https://picsum.photos/seed/coal1/600/600', 'https://picsum.photos/seed/coal2/600/600'],
-    categoryId: 'cat-2',
-    brand: 'پارس زغال',
-    weight: '۱ کیلوگرام',
-    tags: ['زغال', 'لیمو', 'قلمی', 'بدون سردرد'],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2026-05-05T15:00:00Z',
-  },
-  {
-    id: 'prod-6',
-    name: 'زغال فشرده مکعبی کوکو کینگ درجه یک',
-    slug: 'king-coconut-charcoal',
-    description: 'تولید شده صد درصد از پوست نارگیل خالص سری فشرده صادراتی. بدون هیچ‌گونه بوی نامطبوع و سوختن کاملا همگن و بدون شکستگی.',
-    price: 140000,
-    stock: 150,
-    images: ['https://picsum.photos/seed/coco1/600/600'],
-    categoryId: 'cat-2',
-    brand: 'کینگ کوکو',
-    weight: '۱ کیلوگرام',
-    tags: ['نارگیل', 'فشرده', 'مکعبی'],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2026-05-06T10:30:00Z',
-  },
-  {
-    id: 'prod-7',
-    name: 'شلنگ سیلیکونی با دسته فلزی طلایی طرح سلطنتی',
-    slug: 'royal-golden-hose',
-    description: 'شلنگ سیلیکونی بهداشتی قابل شستشو به همراه دسته آلومینیومی تراش‌خورده به رنگ طلایی مجلل ضدزنگ. مکش هوای فوق‌العاده روان.',
-    price: 220000,
-    comparePrice: 280000,
-    stock: 25,
-    images: ['https://picsum.photos/seed/hose1/600/600'],
-    categoryId: 'cat-3',
-    brand: 'الخوانکی',
-    weight: '۳۵۰ گرم',
-    tags: ['شلنگ', 'طلایی', 'فلزی'],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2026-05-07T14:00:00Z',
-  },
-  {
-    id: 'prod-8',
-    name: 'سری سفالی پخته دستی طرح شاه عباسی',
-    slug: 'shah-abbasi-clay-bowl',
-    description: 'سری سفالی سنتی با خاک رس ممتاز گل‌ولای جهرم پخته شده در دمای بالا برای توزیع حرارت متوازن و جلوگیری از سوختن سریع طعم.',
-    price: 95000,
-    comparePrice: 110000,
-    stock: 18,
-    images: ['https://picsum.photos/seed/bowl1/600/600'],
-    categoryId: 'cat-3',
-    brand: 'هنر پارس',
-    weight: '۲۰۰ گرم',
-    tags: ['سری', 'سفالی', 'شاه عباسی'],
-    isActive: true,
-    isFeatured: false,
-    createdAt: '2026-05-08T09:12:00Z',
-  }
-];
-
-const DEFAULT_USERS: User[] = [
-  { id: 'user-admin', name: 'مدیر دخانیات پارسی', email: 'admin@smoke.ir', phone: '09121234567', role: 'admin', isActive: true, createdAt: '2026-01-01T12:00:00Z' },
-  { id: 'user-cust1', name: 'امیر مؤمنی', email: 'amirmomeni177@gmail.com', phone: '09355554321', role: 'customer', isActive: true, createdAt: '2026-05-10T14:30:00Z' }
-];
-
 const DEFAULT_COUPONS: Coupon[] = [
   { id: 'coup-1', code: 'SMOKE20', type: 'percent', value: 20, minOrder: 300000, maxUses: 100, usedCount: 12, expiresAt: '2026-12-31T23:59:59Z', isActive: true },
   { id: 'coup-2', code: 'WINTER50', type: 'fixed', value: 50000, minOrder: 200000, maxUses: 50, usedCount: 5, expiresAt: '2026-09-30T23:59:59Z', isActive: true },
   { id: 'coup-3', code: 'YALDA', type: 'percent', value: 15, minOrder: 150000, maxUses: 200, usedCount: 198, expiresAt: '2026-07-01T23:59:59Z', isActive: false }
-];
-
-const DEFAULT_REVIEWS: Review[] = [
-  { id: 'rev-1', productId: 'prod-1', userId: 'user-cust1', userName: 'امیر مؤمنی', rating: 5, comment: 'فوق العاده غلیظ و بدون سردرد. واقعا دوسیب شلاقی لقب برازنده‌ایه براش. دمتون گرم.', isApproved: true, createdAt: '2026-06-11T16:00:00Z' },
-  { id: 'rev-2', productId: 'prod-5', userId: 'user-cust1', userName: 'آرش علوی', rating: 5, comment: 'بهترین زغال لیمویی که تا حالا خریدم. کاملا قلمی و بی بو، دو ساعت راحت روشنه.', isApproved: true, createdAt: '2026-06-10T12:00:00Z' },
-  { id: 'rev-3', productId: 'prod-2', userId: 'user-cust1', userName: 'سارا رضایی', rating: 4, comment: 'خیلی طعم خامه پرتقال جالب و دلنشینی داره. فقط یکم سریع طعمش تموم شد.', isApproved: false, createdAt: '2026-06-11T19:30:00Z' }
-];
-
-const DEFAULT_ADDRESSES: Address[] = [
-  { id: 'addr-1', userId: 'user-cust1', fullName: 'امیر مؤمنی', phone: '09355554321', province: 'تهران', city: 'تهران', address: 'بلوار اصلی، خیابان ولیعصر، کوچه دهم، پلاک ۱۲، واحد ۴', postalCode: '1456789123', isDefault: true }
-];
-
-const DEFAULT_ORDERS: Order[] = [
-  {
-    id: 'ORD-1002',
-    userId: 'user-cust1',
-    status: 'delivered',
-    totalAmount: 290000,
-    shippingCost: 0,
-    discountAmount: 0,
-    shippingAddress: {
-      fullName: 'امیر مؤمنی',
-      phone: '09355554321',
-      province: 'تهران',
-      city: 'تهران',
-      address: 'بلوار اصلی، خیابان ولیعصر، کوچه دهم، پلاک ۱۲، واحد ۴',
-      postalCode: '1456789123',
-    },
-    paymentMethod: 'درگاه آنلاین زرین‌پال',
-    paymentStatus: 'paid',
-    trackingCode: 'TRK-983174',
-    createdAt: '2026-06-08T14:45:00Z',
-    items: [
-      { id: 'oi-1', productId: 'prod-1', quantity: 2, price: 85000, productSnapshot: { name: 'تنباکو دوسیب شلاقی غلیظ سری طلایی', price: 85000 } },
-      { id: 'oi-2', productId: 'prod-5', quantity: 1, price: 120000, productSnapshot: { name: 'زغال لیمو قلمی جهرم ویژه مجلسی', price: 120000 } }
-    ]
-  },
-  {
-    id: 'ORD-1003',
-    userId: 'user-cust1',
-    status: 'processing',
-    totalAmount: 215000,
-    shippingCost: 35000,
-    discountAmount: 40000,
-    couponCode: 'SMOKE20',
-    shippingAddress: {
-      fullName: 'امیر مؤمنی',
-      phone: '09355554321',
-      province: 'تهران',
-      city: 'تهران',
-      address: 'بلوار اصلی، خیابان ولیعصر، کوچه دهم، پلاک ۱۲، واحد ۴',
-      postalCode: '1456789123',
-    },
-    paymentMethod: 'کارت به کارت',
-    paymentStatus: 'paid',
-    createdAt: '2026-06-11T10:15:00Z',
-    items: [
-      { id: 'oi-3', productId: 'prod-2', quantity: 2, price: 75000, productSnapshot: { name: 'تنباکو پرتقال خامه ملو شاهانه', price: 75000 } },
-      { id: 'oi-4', productId: 'prod-4', quantity: 1, price: 80000, productSnapshot: { name: 'تنباکو نعناع کوهی خنک طبیعی', price: 80000 } }
-    ]
-  }
 ];
 
 const DEFAULT_SETTINGS: Settings = {
@@ -420,102 +218,169 @@ const DEFAULT_SETTINGS: Settings = {
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [initialized, setInitialized] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>(DEFAULT_COUPONS);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Load from local storage
-  useEffect(() => {
-    const getData = <T,>(key: string, defaultVal: T): T => {
-      try {
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : defaultVal;
-      } catch (err) {
-        return defaultVal;
+  // Initialize and synchronise state with backend APIs
+  const refreshFeedsAndSession = async () => {
+    try {
+      // 1. Fetch current authenticated session
+      const meRes = await fetch('/api/auth/me');
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        if (meData.authenticated && meData.user) {
+          setCurrentUser(meData.user);
+
+          // If current user is administrator, fetch all administrative lists
+          if (meData.user.role === 'admin') {
+            const prodRes = await fetch('/api/admin/products');
+            if (prodRes.ok) {
+              const pData = await prodRes.json();
+              setProducts(pData.products || []);
+            }
+            const orderRes = await fetch('/api/admin/orders');
+            if (orderRes.ok) {
+              const oData = await orderRes.json();
+              setOrders(oData.orders || []);
+            }
+            const userRes = await fetch('/api/admin/users');
+            if (userRes.ok) {
+              const uData = await userRes.json();
+              setUsers(uData.users || []);
+            }
+          } else {
+            // Standard Customer: fetch their own active orders
+            const orderRes = await fetch('/api/orders');
+            if (orderRes.ok) {
+              const oData = await orderRes.json();
+              setOrders(oData.orders || []);
+            }
+          }
+        }
       }
-    };
 
-    const timer = setTimeout(() => {
-      setUsers(getData('ps_users', DEFAULT_USERS));
-      setCategories(getData('ps_categories', DEFAULT_CATEGORIES));
-      setProducts(getData('ps_products', DEFAULT_PRODUCTS));
-      setOrders(getData('ps_orders', DEFAULT_ORDERS));
-      setCart(getData('ps_cart', []));
-      setAddresses(getData('ps_addresses', DEFAULT_ADDRESSES));
-      setReviews(getData('ps_reviews', DEFAULT_REVIEWS));
-      setCoupons(getData('ps_coupons', DEFAULT_COUPONS));
-      setSettings(getData('ps_settings', DEFAULT_SETTINGS));
-
-      const activeUser = getData<User | null>('ps_current_user', DEFAULT_USERS[1]); // Default logged in as Customer 'Amir' for smooth testing
-      setCurrentUser(activeUser);
+      // 2. Fetch standard public products feed
+      const publicRes = await fetch('/api/products');
+      if (publicRes.ok) {
+        const publicData = await publicRes.json();
+        setProducts(publicData.products || []);
+        setCategories(publicData.categories || DEFAULT_CATEGORIES);
+      }
+    } catch (err) {
+      console.error('Session sync error:', err);
+    } finally {
       setInitialized(true);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Sync cart and non-sensitive configurations from local storage on mount
+      try {
+        const storedCart = localStorage.getItem('ps_cart');
+        if (storedCart) setCart(JSON.parse(storedCart));
+
+        const storedAddresses = localStorage.getItem('ps_addresses');
+        if (storedAddresses) setAddresses(JSON.parse(storedAddresses));
+
+        const storedReviews = localStorage.getItem('ps_reviews');
+        if (storedReviews) setReviews(JSON.parse(storedReviews));
+
+        const storedCoupons = localStorage.getItem('ps_coupons');
+        if (storedCoupons) setCoupons(JSON.parse(storedCoupons));
+
+        const storedSettings = localStorage.getItem('ps_settings');
+        if (storedSettings) setSettings(JSON.parse(storedSettings));
+      } catch (e) {
+        console.error('Failed to load storage on mount:', e);
+      }
+
+      refreshFeedsAndSession();
     }, 0);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Save to local storage when state changes
+  // Save changes locally
   useEffect(() => {
     if (!initialized) return;
-    localStorage.setItem('ps_users', JSON.stringify(users));
-    localStorage.setItem('ps_categories', JSON.stringify(categories));
-    localStorage.setItem('ps_products', JSON.stringify(products));
-    localStorage.setItem('ps_orders', JSON.stringify(orders));
     localStorage.setItem('ps_cart', JSON.stringify(cart));
     localStorage.setItem('ps_addresses', JSON.stringify(addresses));
     localStorage.setItem('ps_reviews', JSON.stringify(reviews));
     localStorage.setItem('ps_coupons', JSON.stringify(coupons));
     localStorage.setItem('ps_settings', JSON.stringify(settings));
-    localStorage.setItem('ps_current_user', JSON.stringify(currentUser));
-  }, [users, categories, products, orders, cart, addresses, reviews, coupons, settings, currentUser, initialized]);
+  }, [cart, addresses, reviews, coupons, settings, initialized]);
 
   // Auth Actions
-  const loginUser = (email: string, password: string) => {
-    const usr = users.find((u) => u.email === email);
-    if (!usr) {
-      return { success: false, error: 'کاربری با این ایمیل یافت نشد.' };
+  const loginUser = async (email: string, password: string) => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'خطایی رخ داد' };
+      }
+      setCurrentUser(data.user);
+      await refreshFeedsAndSession();
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: 'سرور در دسترس نیست.' };
     }
-    // We are simply matching mock password or any password for testing
-    if (password.length < 4) {
-      return { success: false, error: 'رمز عبور باید حداقل ۴ کاراکتر باشد.' };
-    }
-    setCurrentUser(usr);
-    return { success: true };
   };
 
-  const registerUser = (name: string, email: string, phone: string, password: string) => {
-    if (users.some((u) => u.email === email)) {
-      return { success: false, error: 'ایمیل وارد شده قبلاً ثبت شده است.' };
+  const registerUser = async (name: string, email: string, phone: string, password: string) => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error };
+      }
+      // Log user in automatically after register
+      return await loginUser(email, password);
+    } catch (err) {
+      return { success: false, error: 'ثبت‌نام با خطا مواجه شد.' };
     }
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name,
-      email,
-      phone,
-      role: 'customer',
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
-    setUsers((prev) => [...prev, newUser]);
-    setCurrentUser(newUser);
-    return { success: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error(e);
+    }
     setCurrentUser(null);
+    setOrders([]);
+    await refreshFeedsAndSession();
   };
 
-  const setCurrentUserRole = (role: 'admin' | 'customer') => {
+  const setCurrentUserRole = async (role: 'admin' | 'customer') => {
     if (!currentUser) return;
-    const updated = { ...currentUser, role };
-    setCurrentUser(updated);
-    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? updated : u)));
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: currentUser.id, role })
+      });
+      if (res.ok) {
+        await refreshFeedsAndSession();
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Cart Actions
@@ -565,10 +430,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const isFree = subtotal >= settings.freeShippingThreshold;
     const shippingCost = subtotal === 0 ? 0 : isFree ? 0 : settings.shippingCost;
-
-    // Apply Coupon checking (if coupon verified by checkout state etc.)
-    // We will compute final discount when requested by UI. This is a helper.
-    const discount = 0; // Handled directly in Checkout with code
+    const discount = 0; // calculated inside checkout
 
     return {
       subtotal,
@@ -579,91 +441,107 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Order Actions
-  const createOrder = (orderData: Omit<Order, 'id' | 'userId' | 'createdAt' | 'status' | 'paymentStatus' | 'items'>) => {
-    const totalCalc = getCartTotal();
-    const orderItems: OrderItem[] = cart
-      .map((item) => {
-        const prod = products.find((p) => p.id === item.productId);
-        if (!prod) return null;
-        return {
-          id: `oi-${Date.now()}-${prod.id}`,
-          productId: prod.id,
-          quantity: item.quantity,
-          price: prod.price,
-          productSnapshot: {
-            name: prod.name,
-            price: prod.price,
-            brand: prod.brand,
-            weight: prod.weight,
-          },
-        };
-      })
-      .filter(Boolean) as OrderItem[];
+  const createOrder = async (orderData: Omit<Order, 'id' | 'userId' | 'createdAt' | 'status' | 'paymentStatus' | 'items'>) => {
+    const totals = getCartTotal();
+    
+    // Structure cart items for server
+    const orderRawItems = cart.map((c) => ({
+      productId: c.productId,
+      quantity: c.quantity
+    }));
 
-    // Reduce stock
-    cart.forEach((item) => {
-      setProducts((prev) =>
-        prev.map((p) => {
-          if (p.id === item.productId) {
-            return { ...p, stock: Math.max(0, p.stock - item.quantity) };
-          }
-          return p;
-        })
-      );
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: orderRawItems,
+        shippingAddress: orderData.shippingAddress,
+        paymentMethod: orderData.paymentMethod,
+        couponCode: orderData.couponCode,
+        discountAmount: orderData.discountAmount,
+        shippingCost: totals.shippingCost,
+        totalAmount: totals.total
+      })
     });
 
-    const newOrder: Order = {
-      ...orderData,
-      id: `ORD-${1000 + orders.length + 1}`,
-      userId: currentUser?.id || 'guest',
-      status: 'pending',
-      paymentStatus: 'paid', // Simple checkout payment simulation
-      createdAt: new Date().toISOString(),
-      items: orderItems,
-    };
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'ثبت سفارش با مشکل مواجه گردید.');
+    }
 
-    setOrders((prev) => [newOrder, ...prev]);
+    const resData = await res.json();
     clearCart();
-    return newOrder;
+    await refreshFeedsAndSession();
+    return resData.order;
   };
 
-  const updateOrderStatus = (orderId: string, status: Order['status'], trackingCode?: string) => {
-    setOrders((prev) =>
-      prev.map((ord) => (ord.id === orderId ? { ...ord, status, trackingCode: trackingCode || ord.trackingCode } : ord))
-    );
+  const updateOrderStatus = async (orderId: string, status: Order['status'], trackingCode?: string) => {
+    try {
+      const res = await fetch('/api/admin/orders', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: orderId, status, trackingCode })
+      });
+      if (res.ok) {
+        await refreshFeedsAndSession();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // Product Actions
-  const addProduct = (product: Omit<Product, 'id' | 'createdAt'>) => {
-    const newProd: Product = {
-      ...product,
-      id: `prod-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    setProducts((prev) => [...prev, newProd]);
+  // Product Actions CRUD (calls Real Protected APIs!)
+  const addProduct = async (product: Omit<Product, 'id' | 'createdAt'>) => {
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      if (res.ok) {
+        await refreshFeedsAndSession();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const updateProduct = (id: string, updatedFields: Partial<Product>) => {
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p)));
+  const updateProduct = async (id: string, updatedFields: Partial<Product>) => {
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updatedFields })
+      });
+      if (res.ok) {
+        await refreshFeedsAndSession();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+  const deleteProduct = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/products?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        await refreshFeedsAndSession();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // Category Actions
+  // Category Actions (fallback local modifiers)
   const addCategory = (category: Omit<Category, 'id'>) => {
-    const newCat: Category = {
-      ...category,
-      id: `cat-${Date.now()}`,
-    };
+    const newCat: Category = { ...category, id: `cat-${Date.now()}` };
     setCategories((prev) => [...prev, newCat]);
   };
-
   const updateCategory = (id: string, updatedFields: Partial<Category>) => {
     setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...updatedFields } : c)));
   };
-
   const deleteCategory = (id: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== id));
   };
@@ -677,88 +555,60 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userName: currentUser?.name || 'مشتری میهمان',
       rating,
       comment,
-      isApproved: false, // requires admin approval
+      isApproved: false,
       createdAt: new Date().toISOString(),
     };
     setReviews((prev) => [newReview, ...prev]);
   };
-
   const approveReview = (reviewId: string) => {
     setReviews((prev) => prev.map((r) => (r.id === reviewId ? { ...r, isApproved: true } : r)));
   };
-
   const rejectReview = (reviewId: string) => {
     setReviews((prev) => prev.filter((r) => r.id !== reviewId));
   };
 
   // Coupon Actions
   const addCoupon = (coupon: Omit<Coupon, 'id' | 'usedCount'>) => {
-    const newCoupon: Coupon = {
-      ...coupon,
-      id: `coup-${Date.now()}`,
-      usedCount: 0,
-    };
-    setCoupons((prev) => [...prev, newCoupon]);
+    const newC = { ...coupon, id: `coup-${Date.now()}`, usedCount: 0 };
+    setCoupons((prev) => [...prev, newC]);
   };
-
   const toggleCoupon = (id: string) => {
     setCoupons((prev) => prev.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)));
   };
-
   const verifyCoupon = (code: string) => {
     const activeC = coupons.find((c) => c.code.toLowerCase() === code.trim().toLowerCase());
-    if (!activeC) {
-      return { success: false, error: 'کد تخفیف معتبر نیست یا اشتباه وارد شده است.' };
-    }
-    if (!activeC.isActive) {
-      return { success: false, error: 'این کد تخفیف منقضی یا غیرفعال شده است.' };
-    }
-    const now = new Date();
-    if (new Date(activeC.expiresAt) < now) {
-      return { success: false, error: 'تاریخ استفاده از این کد تخفیف به پایان رسیده است.' };
-    }
-    if (activeC.usedCount >= activeC.maxUses) {
-      return { success: false, error: 'سقف ظرفیت استفاده از این کد تخفیف پر شده است.' };
-    }
+    if (!activeC) return { success: false, error: 'کد تخفیف معتبر نیست یا اشتباه وارد شده است.' };
+    if (!activeC.isActive) return { success: false, error: 'این کد تخفیف منقضی या غیرفعال شده است.' };
+    if (new Date(activeC.expiresAt) < new Date()) return { success: false, error: 'تاریخ استفاده به پایان رسیده است.' };
+    if (activeC.usedCount >= activeC.maxUses) return { success: false, error: 'سقف ظرفیت استفاده پر شده است.' };
     return { success: true, coupon: activeC };
   };
 
   // Address Actions
   const addAddress = (address: Omit<Address, 'id' | 'userId'>) => {
-    const newAddr: Address = {
-      ...address,
-      id: `addr-${Date.now()}`,
-      userId: currentUser?.id || 'guest',
-    };
+    const newAddr = { ...address, id: `addr-${Date.now()}`, userId: currentUser?.id || 'guest' };
     setAddresses((prev) => {
       const items = address.isDefault ? prev.map((a) => ({ ...a, isDefault: false })) : prev;
       return [...items, newAddr];
     });
   };
-
   const updateAddress = (id: string, updatedFields: Partial<Address>) => {
     setAddresses((prev) =>
       prev.map((a) => {
-        if (a.id === id) {
-          return { ...a, ...updatedFields };
-        }
-        if (updatedFields.isDefault && a.id !== id) {
-          return { ...a, isDefault: false };
-        }
+        if (a.id === id) return { ...a, ...updatedFields };
+        if (updatedFields.isDefault && a.id !== id) return { ...a, isDefault: false };
         return a;
       })
     );
   };
-
   const deleteAddress = (id: string) => {
     setAddresses((prev) => prev.filter((a) => a.id !== id));
   };
-
   const setDefaultAddress = (id: string) => {
     setAddresses((prev) => prev.map((a) => ({ ...a, isDefault: a.id === id })));
   };
 
-  // Settings Action
+  // Settings Actions
   const updateSettings = (updatedFields: Partial<Settings>) => {
     setSettings((prev) => ({ ...prev, ...updatedFields }));
   };

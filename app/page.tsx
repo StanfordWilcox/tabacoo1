@@ -57,6 +57,22 @@ export default function Page() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  // Check URL query parameters for errors
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get('error');
+      if (error === 'unauthorized_admin') {
+        setTimeout(() => {
+          addToast('شما دسترسی ورود به پنل مدیریت را ندارید. لطفاً با یک حساب مدیریت لاگین کنید.', 'error');
+        }, 100);
+        // Clean URL to prevent recurring toast on refresh
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  }, []);
+
   // Route security gatekeeper
   const handleNavigate = (view: 'home' | 'shop' | 'product-detail' | 'cart' | 'checkout' | 'auth' | 'dashboard' | 'admin', slug: string = '') => {
     if (slug) {
