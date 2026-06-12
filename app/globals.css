@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+@theme {
+  --color-black: #0E0600;
+  --color-dark: #1A0A00;
+  --color-surface: #2D1500;
+  --color-gold: #C8860A;
+  --color-gold-lt: #E8A820;
+  --color-crimson: #8B1A1A;
+  --color-parchment: #F5E6C8;
+  --color-parchment-dim: #B8A07A;
+  --color-smoke: rgba(200, 134, 10, 0.08);
+
+  --font-sans: var(--font-vazirmatn), sans-serif;
+  --font-serif: var(--font-playfair), serif;
+
+  --animate-spin-slow: spin 60s linear infinite;
+  --animate-smoke-1: smoke1 8s ease-in-out infinite;
+  --animate-smoke-2: smoke2 10s ease-in-out infinite;
+  --animate-smoke-3: smoke3 9s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0E0600;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C8860A;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E8A820;
+}
+
+/* Base custom styles */
+:root {
+  --black: #0E0600;
+  --dark: #1A0A00;
+  --surface: #2D1500;
+  --gold: #C8860A;
+  --gold-lt: #E8A820;
+  --crimson: #8B1A1A;
+  --parchment: #F5E6C8;
+  --parchment-dim: #B8A07A;
+  --smoke: rgba(200, 134, 10, 0.08);
+
+  /* Admin Variables */
+  --bg: #090400;
+  --admin-dark: #110800;
+  --admin-surface: #1C0E00;
+  --admin-card: #231200;
+  --admin-border: rgba(200, 134, 10, 0.14);
+  --admin-border-hi: rgba(200, 134, 10, 0.4);
+  --green: #2D7A3A;
+  --green-lt: #3DA050;
+  --sidebar-w: 240px;
+}
+
+/* Smoke Keyframes */
+@keyframes smoke1 {
+  0% {
+    transform: translateY(100%) scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(50%) scale(1.1) rotate(15deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-20%) scale(1.3) rotate(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes smoke2 {
+  0% {
+    transform: translateY(100%) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.25;
+  }
+  60% {
+    transform: translateY(40%) scale(1.15) rotate(-20deg);
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-40%) scale(1.4) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes smoke3 {
+  0% {
+    transform: translateY(100%) scale(0.95) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.35;
+  }
+  55% {
+    transform: translateY(45%) scale(1.2) rotate(10deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-30%) scale(1.35) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+/* Global design utilities */
+.sharp-border {
+  border-radius: 2px !important;
+}
+
+/* Custom interactive and layout styles for admin and front */
+.stat-card {
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 3px;
+  background: var(--gold);
+}
+
+.stat-card.crimson::before {
+  background: var(--crimson);
+}
+
+.stat-card.green::before {
+  background: var(--green);
+}
+
+.stat-card.blue::before {
+  background: #3B82F6;
+}
+
+.panel {
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+}
+
+.panel-head {
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-table thead {
+  background: var(--admin-surface);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--parch-dim);
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(200, 134, 10, 0.08);
+}
+
+.admin-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* Custom Arabesque pattern elements if needed */
+.arabesque-border {
+  border: 1px solid rgba(200, 134, 10, 0.2);
+  position: relative;
+}
+
+.arabesque-border::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid rgba(200, 134, 10, 0.1);
+  pointer-events: none;
+}
+
+.mandala-bg {
+  position: absolute;
+  top: -100px;
+  left: -150px;
+  opacity: 0.15;
+  width: 600px;
+  height: 600px;
+  pointer-events: none;
+  border-radius: 50%;
+  border: 40px double var(--gold);
+}
+
+.smoke-wisp {
+  background: linear-gradient(to top, transparent, rgba(200, 134, 10, 0.05), transparent);
+  width: 2px;
+  position: absolute;
+}
+
+.arabesque-corner-top-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.arabesque-corner-bottom-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+

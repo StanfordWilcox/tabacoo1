@@ -1,0 +1,6 @@
+{
+  "name": "دخانیات پارسی | Persian Smoke",
+  "description": "فروشگاه پرمیوم تنباکو، زغال زغال‌سنگ و اکسسوری قلیان با کیفیت بی‌نظیر",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
