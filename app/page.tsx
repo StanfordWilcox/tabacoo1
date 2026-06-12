@@ -11,7 +11,6 @@ import CartView from '@/components/CartView';
 import CheckoutView from '@/components/CheckoutView';
 import DashboardView from '@/components/DashboardView';
 import AuthView from '@/components/AuthView';
-import AdminView from '@/components/AdminView';
 import { Star, ShieldAlert, Zap, Award, Sparkles, X, ChevronLeft, ArrowUp } from 'lucide-react';
 
 interface Toast {
@@ -77,16 +76,8 @@ export default function Page() {
     }
 
     if (view === 'admin') {
-      if (!currentUser) {
-        addToast('جهت دسترسی به پنل پیکربندی اداری ابتدا باید به عنوان مدیر سیستم لاگین کنید.', 'error');
-        setActiveView('auth');
-        return;
-      }
-      if (currentUser.role !== 'admin') {
-        addToast('شناسه کاربری شما فاقد دسترسی ارشد اداری دفتری است.', 'error');
-        setActiveView('home');
-        return;
-      }
+      window.location.href = '/admin';
+      return;
     }
 
     setActiveView(view);
@@ -296,44 +287,6 @@ export default function Page() {
         return null;
     }
   };
-
-  // If activeView is 'admin', render complete separation layout
-  if (activeView === 'admin') {
-    return (
-      <div dir="rtl" className="bg-[#090400] min-h-screen text-[#F5E6C8] selection:bg-[#C8860A] selection:text-black">
-        <AdminView
-          onBackToCustomer={() => handleNavigate('home')}
-          onAddToast={addToast}
-        />
-
-        {/* Global Toasts rendering */}
-        <div className="fixed bottom-6 right-6 space-y-3 z-50 max-w-sm w-full pointer-events-none text-right">
-          {toasts.map((t) => (
-            <div
-              key={t.id}
-              className={`p-3.5 shadow-2xl border pointer-events-auto flex items-start gap-2.5 sharp-border transition-all duration-300 animate-slide-in text-xs ${
-                t.type === 'error'
-                  ? 'bg-red-950/95 text-red-300 border-red-500/35'
-                  : t.type === 'info'
-                  ? 'bg-blue-950/95 text-blue-300 border-blue-500/35'
-                  : 'bg-[#1C0E00] text-[#F5E6C8] border-[#C8860A]/45 shadow-[#C8860A]/5'
-              }`}
-            >
-              <div className="flex-grow leading-relaxed font-semibold">
-                {t.message}
-              </div>
-              <button
-                onClick={() => removeToast(t.id)}
-                className="opacity-60 hover:opacity-100 transition-opacity p-0.5 shrink-0"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div dir="rtl" className="bg-[#0F0800] min-h-screen text-[#F5E6C8] selection:bg-[#C8860A] selection:text-black flex flex-col justify-between">
